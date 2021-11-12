@@ -1,5 +1,6 @@
 const express = require("express");
 const { MongoClient } = require('mongodb');
+var ObjectId = require('mongodb').ObjectId;
 require('dotenv').config()
 const cors = require("cors")
 const app = express();
@@ -19,23 +20,37 @@ async function run() {
         console.log("database connected");
         const database = client.db("car-shop")
         const allCarsCollection = database.collection("allCars")
+        const ordersCollection = database.collection("orders")
+        const usersCollection = database.collection("users")
 
+        // get all cars
         app.get("/allcars", async (req, res) => {
             const carLimit = parseInt(req.query.datalimit)
+            const id = req?.query?.id
+            const query = { _id: ObjectId(id) };
             const cursor = allCarsCollection.find({});
             let result
-            if (!carLimit) {
+            if (id) {
+                result = await allCarsCollection.findOne(query)
+            }
+            else if (!carLimit) {
                 result = await cursor.toArray()
-
             }
             else {
                 result = await cursor.limit(carLimit).toArray()
             }
-            // console.log(limit);
-            // const query = { runtime: { $lt: limit } };
             res.send(result)
-
+        });
+        // post user order
+        app.post("/order", async (req, res) => {
+            const order = req.body
+            console.log(order);
+            const result = await ordersCollection.insertOne(order);
+            console.log(result);
+            res.json(result)
         })
+        // post all users
+
     }
     finally {
         // await client.close()

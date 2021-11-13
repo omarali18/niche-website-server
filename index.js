@@ -64,19 +64,12 @@ async function run() {
             res.json(result)
         })
 
-
-
-
-
         app.delete("/order", async (req, res) => {
             const id = req.query.id
             const query = { _id: ObjectId(id) }
             const result = await ordersCollection.deleteOne(query)
             res.json(result)
         })
-
-
-
 
         // post all users
         app.post("/users", async (req, res) => {
@@ -96,6 +89,28 @@ async function run() {
             res.json(result)
 
         });
+
+        app.put("/users/admin", async (req, res) => {
+            const user = req.body
+            const filter = { email: user.email }
+            const updateDoc = { $set: { role: "admin" } }
+            const result = await usersCollection.updateOne(filter, updateDoc)
+            res.json(result)
+        })
+        app.get("/users/:email", async (req, res) => {
+            const email = req.params.email
+            const filter = { email: email }
+            const user = await usersCollection.findOne(filter)
+            // console.log(result);
+            let isAdmin = false
+            if (user.role === "admin") {
+                isAdmin = true
+            }
+            res.json({ admin: isAdmin })
+        })
+
+
+
 
         // add a review
         app.post("/review", async (req, res) => {

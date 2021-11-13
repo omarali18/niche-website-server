@@ -42,14 +42,52 @@ async function run() {
             res.send(result)
         });
         // post user order
+        app.get("/order", async (req, res) => {
+            const myOrder = req.query
+            const query = { email: myOrder.myOrder }
+            const result = await ordersCollection.find(query).toArray()
+            res.send(result)
+        })
+
         app.post("/order", async (req, res) => {
             const order = req.body
-            console.log(order);
             const result = await ordersCollection.insertOne(order);
             console.log(result);
             res.json(result)
         })
+
+
+
+
+
+        app.delete("/order", async (req, res) => {
+            const id = req.query.id
+            const query = { _id: ObjectId(id) }
+            const result = await ordersCollection.deleteOne(query)
+            res.json(result)
+        })
+
+
+
+
         // post all users
+        app.post("/users", async (req, res) => {
+            const user = req.body
+            const result = await usersCollection.insertOne(user)
+            console.log(result);
+            res.json(result)
+
+        })
+        app.put("/users", async (req, res) => {
+            const user = req.body
+            const query = { email: user.email }
+            const options = { upsert: true };
+            const updateDoc = { $set: user }
+            const result = await usersCollection.updateOne(query, updateDoc, options)
+            console.log(result);
+            res.json(result)
+
+        })
 
     }
     finally {
